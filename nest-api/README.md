@@ -57,7 +57,7 @@ Backend – קובץ nest-api/.env
 
 
 DB_HOST=localhost
-DB_PORT=5438
+DB_PORT=5432
 DB_USER=postgres
 DB_PASSWORD=123456
 DB_DATABASE=BuyForce_sql

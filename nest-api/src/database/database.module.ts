@@ -15,30 +15,49 @@ import { Notification } from '../notifications/notification.entity';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+
     TypeOrmModule.forRootAsync({
-      imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        type: 'postgres',
-        host: config.get<string>('DB_HOST', 'localhost'),
-        port: config.get<number>('DB_PORT', 5438),
-        username: config.get<string>('DB_USER', 'postgres'),
-        password: config.get<string>('DB_PASSWORD', '123456'),
-        database: config.get<string>('DB_DATABASE', 'BuyForce_sql'),
-        entities: [
-          Product,
-          Comment,
-          User,
-          Group,
-          Order,
-          OrderItem,
-          GroupMember,
-          WishlistItem,
-          Notification,
-        ],
-        synchronize: true,
-        logging: true,
-      }),
+      useFactory: (config: ConfigService) => {
+        const nodeEnv = config.get<string>('NODE_ENV', 'development');
+        const isProd = nodeEnv === 'production';
+
+        console.log('DB_HOST =', config.get('DB_HOST'));
+console.log('DB_USER =', config.get('DB_USER'));
+console.log('DB_DATABASE =', config.get('DB_DATABASE'));
+
+        return {
+          type: 'postgres',
+
+          host: config.get<string>('DB_HOST'),
+          port: Number(config.get<number | string>('DB_PORT', 5432)),
+          username: config.get<string>('DB_USER'),
+          password: config.get<string>('DB_PASSWORD'),
+          database: config.get<string>('DB_DATABASE'),
+
+          entities: [
+            Product,
+            Comment,
+            User,
+            Group,
+            Order,
+            OrderItem,
+            GroupMember,
+            WishlistItem,
+            Notification,
+          ],
+
+          // ✅ Neon מחייב SSL
+          ssl: {
+            rejectUnauthorized: false,
+          },
+
+          // ✅ חשוב: בפרודקשן לא עושים synchronize אוטומטי
+          synchronize: !isProd,
+          logging: !isProd,
+        };
+      },
     }),
   ],
   exports: [TypeOrmModule],
