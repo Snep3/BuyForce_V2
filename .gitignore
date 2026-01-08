@@ -53,3 +53,5 @@ express-api/
 Thumbs.db
 .vscode/
 .idea/
+
+*.zip
